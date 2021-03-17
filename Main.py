@@ -17,6 +17,7 @@ SILVER = (192,208,224)
 RED = (255,0,0)
 
 
+ENEMY_ADS = 1
 
 LINE_TOP = -80
 LINE_BOTTOM = 1124
@@ -45,7 +46,11 @@ img_enemy_weapon = [
 ]
 
 img_enemy = [
-    pygame.image.load("image/enemies/enemyBlack1.png")
+    None,
+    pygame.image.load("image/enemies/enemyBlack1.png"),
+    pygame.image.load("image/enemies/enemy2.png"),
+    pygame.image.load("image/enemies/enemy3.png"),
+    pygame.image.load("image/enemies/enemy4.png")
 ]
 
 img_explode = [
@@ -66,6 +71,11 @@ img_explode = [
 img_title = [
     pygame.image.load("image/Title.png")
 ]
+
+se_barrage = None
+se_damage = None
+se_explosion = None
+se_shot = None
 
 
 
@@ -108,6 +118,8 @@ enemy_bullet_y = [0] * ENEMY_MAX
 enemy_bullet_a = [0] * ENEMY_MAX
 enemy_bullet_type = [0] * ENEMY_MAX
 enemy_bullet_speed = [0] * ENEMY_MAX
+enemy_life = [0] * ENEMY_MAX
+enemy_count = [0] * ENEMY_MAX
 
 
 effect_no = 0
@@ -119,7 +131,7 @@ effect_y = [0] * EFFECT_MAX
 def get_dis(x1,y1,x2,y2):
     return (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)
 
-def draw_text(scrn, txt, x, y, siz, col):  # 문자 표시
+def draw_text(scrn, txt, x, y, siz, col):
     fnt = pygame.font.Font("image/font.ttf", siz)
     sur = fnt.render(txt, True, col)
     x = x - sur.get_width() / 2
@@ -185,10 +197,12 @@ def move_ship(screen, key):
     key_space = (key_space + 1) * key[K_SPACE]
     if key_space % 5 == 1:
         set_bullet(0)
+        se_shot.play()
     key_z = (key_z + 1) * key[K_z]
     if key_z == 1 and player_bomb > 0:
         set_bullet(10)
         player_bomb -= 1
+        se_barrage.play()
     if player_invincible %2 == 0:
         screen.blit(img_ship[2], [player_x - 8, player_y + 40 + (timer % 4) * 2])
         screen.blit(img_ship[player_d] , [player_x - 49, player_y - 37])
@@ -197,7 +211,7 @@ def move_ship(screen, key):
         player_invincible = player_invincible - 1
         return
     elif index == 1:
-        for i in range(ENEMY_MAX):  # 적 기체와 히트 체크
+        for i in range(ENEMY_MAX):
             if enemy_f[i] == True:
                 w = img_enemy[enemy_type[i]].get_width()
                 h = img_enemy[enemy_type[i]].get_height()
@@ -210,15 +224,41 @@ def move_ship(screen, key):
                         timer = 0
                     if player_invincible == 0:
                         player_invincible = 60
+                        se_damage.play()
                     enemy_f[i] = False
+
+        for i in range(ENEMY_BULLET_MAX):
+            if enemy_bullet_f[i] == True:
+                w = img_enemy_weapon[enemy_bullet_type[i]].get_width()
+                h = img_enemy_weapon[enemy_bullet_type[i]].get_height()
+                r = int((w + h) / 4 + (74 + 96) / 4)
+                if get_dis(enemy_bullet_x[i], enemy_bullet_y[i], player_x, player_y) < r * r:
+                    set_effect(player_x, player_y)
+                    player_life -= 1
+                    if player_life == 0:
+                        index = 2
+                        timer = 0
+                    if player_invincible == 0:
+                        player_invincible = 60
+                        se_damage.play()
+                    enemy_bullet_f[i] = False
+
 
 
 def bring_enemy():  # 적 기체 등장
+    sec = timer / 30
     if timer % 30 == 0:
-        set_enemy(random.randint(80, 940), LINE_TOP, 90, 0, 6)
+        if 0 < sec and sec < 15:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS, 8, 1)  # 적 1
+        if 15 < sec and sec < 30:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS + 1, 12, 1)  # 적 2
+        if 30 < sec and sec < 45:
+            set_enemy(random.randint(100, 860), LINE_TOP, random.randint(60, 120), ENEMY_ADS + 2, 6, 3)  # 적 3
+        if 45 < sec and sec < 60:
+            set_enemy(random.randint(100, 860), LINE_TOP, 90, ENEMY_ADS + 3, 12, 2)  # 적 4
 
 
-def set_enemy(x, y, a, ty, sp):  # 적 기체 설정
+def set_enemy(x, y, a, ty, sp , lf):  # 적 기체 설정
     global enemy_no
     while True:
         if not enemy_f[enemy_no]:
@@ -228,6 +268,8 @@ def set_enemy(x, y, a, ty, sp):  # 적 기체 설정
             enemy_a[enemy_no] = a
             enemy_type[enemy_no] = ty
             enemy_speed[enemy_no] = sp
+            enemy_life[enemy_no] = lf
+            enemy_count[enemy_no] = 0
             break
         enemy_no = (enemy_no + 1) % ENEMY_MAX
 
@@ -256,10 +298,20 @@ def move_enemy(screen):
             enemy_x[i] = enemy_x[i] + enemy_speed[i] * math.cos(math.radians(enemy_a[i]))
             enemy_y[i] = enemy_y[i] + enemy_speed[i] * math.sin(math.radians(enemy_a[i]))
 
-            if enemy_type[i] == 0 and enemy_y[i] > 360:
+            if enemy_type[i] == 1 and enemy_y[i] > 360:
                 set_enemy_bullet(enemy_x[i], enemy_y[i], 90, 0, 16)
                 enemy_a[i] = -45
                 enemy_speed[i] = 16
+
+            if enemy_type[i] == 4:  # 진행 방향을 변경하는 적
+                enemy_count[i] = enemy_count[i] + 1
+                ang = enemy_count[i] * 10
+                if enemy_y[i] > 240 and enemy_a[i] == 90:
+                    enemy_a[i] = random.choice([50, 70, 110, 130])
+                    set_enemy_bullet(enemy_x[i], enemy_y[i], 90, 0, 6)
+
+
+
             if enemy_x[i] < LINE_LEFT or LINE_RIGHT < enemy_x[i] or enemy_y[i] < LINE_TOP or LINE_BOTTOM < enemy_y[i]:
                 enemy_f[i] = False
 
@@ -274,13 +326,16 @@ def move_enemy(screen):
                 if bullet_f[n] == True and get_dis(enemy_x[i],enemy_y[i],bullet_x[n],bullet_y[n]) < r*r:
                     bullet_f[n] = False
                     set_effect(enemy_x[i], enemy_y[i])
+                    se_damage.play()
+                    enemy_life[i] -= 1
                     score += 100  # score up
-                    enemy_f[i] = False
+                    if enemy_life[i] == 0:
+                        enemy_f[i] = False
             img_rz = pygame.transform.rotozoom(img_enemy[png], ang, 1.0)
             screen.blit(img_rz, [enemy_x[i] - img_rz.get_width() / 2, enemy_y[i] - img_rz.get_height() / 2])
 
 
-def move_enemy_bullet(screen):  # 적 기체 이동
+def move_enemy_bullet(screen):
     for i in range(ENEMY_BULLET_MAX):
         if enemy_bullet_f[i] == True:
             ang = -90 - enemy_bullet_a[i]
@@ -323,11 +378,16 @@ def draw_ui(screen):
 
 def main():
     global timer , background_ypos , index, score, player_x , player_y , player_d , player_bomb,player_invincible
+    global se_barrage,se_damage,se_explosion,se_shot
     pygame.init()
     pygame.display.set_caption("Space Warrior")
     screen = pygame.display.set_mode((1024,1024))
 
     clock = pygame.time.Clock()
+    se_barrage = pygame.mixer.Sound("sound/barrage.ogg")
+    se_damage = pygame.mixer.Sound("sound/damage.ogg")
+    se_explosion = pygame.mixer.Sound("sound/explosion.ogg")
+    se_shot = pygame.mixer.Sound("sound/shot.ogg")
 
     while True:
         timer = timer + 1
@@ -356,11 +416,14 @@ def main():
                     enemy_f[i] = False
                 for i in range(BULLET_MAX):
                     bullet_f[i] = False
+                pygame.mixer.music.load("sound/bgm.ogg")
+                pygame.mixer.music.play(-1)
 
 
         if index == 1:
             move_ship(screen, key)
             move_bullet(screen)
+            move_enemy_bullet(screen)
             bring_enemy()
             move_enemy(screen)
             if timer == 30 * 60 :# remain time to clear
@@ -370,16 +433,33 @@ def main():
         if index == 2:
             move_enemy_bullet(screen)
             move_enemy(screen)
-            draw_text(screen, "GAME OVER", 480 , 300, 80, RED)
-            if timer == 150:
+            if timer == 1:
+                pygame.mixer.music.stop()
+            if timer <= 90:
+                if timer % 5 == 0:
+                    set_effect(player_x + random.randint(-60, 60), player_y + random.randint(-60, 60))
+                if timer % 10 == 0:
+                    se_damage.play()
+            if timer == 120:
+                pygame.mixer.music.load("sound/gameover.ogg")
+                pygame.mixer.music.play(0)
+            if timer > 120:
+                draw_text(screen, "GAME OVER", 480 , 300, 80, RED)
+            if timer == 400:
                 index = 0
                 timer = 0
 
         if index == 3:
             move_ship(screen, key)
             move_bullet(screen)
-            draw_text(screen , "GAME CLEAR",480 , 300, 80, SILVER)
-            if timer == 150:
+            if timer == 1:
+                pygame.mixer.music.stop()
+            if timer == 2:
+                pygame.mixer.music.load("sound/gameclear.ogg")
+                pygame.mixer.music.play(0)
+            if timer > 20:
+                draw_text(screen , "GAME CLEAR",480 , 300, 80, SILVER)
+            if timer == 300:
                 index = 0
                 timer = 0
 
