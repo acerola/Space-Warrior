@@ -9,6 +9,7 @@ SCROLLSPEED = 10
 BULLET_MAX = 100
 ENEMY_MAX = 100
 ENEMY_BULLET_MAX = 100
+EFFECT_MAX = 100
 
 LINE_TOP = -80
 LINE_BOTTOM = 1124
@@ -36,6 +37,22 @@ img_enemy_weapon = [
 img_enemy = [
     pygame.image.load("image/enemies/enemyBlack1.png")
 ]
+
+img_explode = [
+    None,
+    pygame.image.load("image/explosion/boom01.png"),
+    pygame.image.load("image/explosion/boom02.png"),
+    pygame.image.load("image/explosion/boom03.png"),
+    pygame.image.load("image/explosion/boom04.png"),
+    pygame.image.load("image/explosion/boom05.png"),
+    pygame.image.load("image/explosion/boom06.png"),
+    pygame.image.load("image/explosion/boom07.png"),
+    pygame.image.load("image/explosion/boom08.png"),
+    pygame.image.load("image/explosion/boom09.png"),
+    pygame.image.load("image/explosion/boom10.png"),
+    pygame.image.load("image/explosion/boom11.png"),
+]
+
 
 
 
@@ -73,6 +90,17 @@ enemy_bullet_y = [0] * ENEMY_MAX
 enemy_bullet_a = [0] * ENEMY_MAX
 enemy_bullet_type = [0] * ENEMY_MAX
 enemy_bullet_speed = [0] * ENEMY_MAX
+
+
+effect_no = 0
+effect_p = [0] * EFFECT_MAX
+effect_x = [0] * EFFECT_MAX
+effect_y = [0] * EFFECT_MAX
+
+
+def get_dis(x1,y1,x2,y2):
+    return (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)
+
 
 
 
@@ -193,6 +221,15 @@ def move_enemy(screen):
             img_rz = pygame.transform.rotozoom(img_enemy[png], ang, 1.0)
             screen.blit(img_rz, [enemy_x[i] - img_rz.get_width() / 2, enemy_y[i] - img_rz.get_height() / 2])
 
+            # hit check
+            w = img_enemy[enemy_type[i]].get_width()
+            h = img_enemy[enemy_type[i]].get_height()
+            r = int((w+h)/4) + 12
+            for n in range(BULLET_MAX):
+                if bullet_f[n] == True and get_dis(enemy_x[i],enemy_y[i],bullet_x[n],bullet_y[n]) < r*r:
+                    bullet_f[n] = False
+                    enemy_f[i] = False
+
 
 def move_enemy_bullet(screen):  # 적 기체 이동
     for i in range(ENEMY_BULLET_MAX):
@@ -205,6 +242,11 @@ def move_enemy_bullet(screen):  # 적 기체 이동
                 enemy_bullet_f[i] = False
             img_rz = pygame.transform.rotozoom(img_enemy_weapon[png], ang, 1.0)
             screen.blit(img_rz, [enemy_bullet_x[i] - img_rz.get_width() / 2, enemy_bullet_y[i] - img_rz.get_height() / 2])
+
+
+
+
+
 
 
 def main():
