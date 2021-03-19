@@ -10,6 +10,7 @@ BULLET_MAX = 100
 ENEMY_MAX = 100
 ENEMY_BULLET_MAX = 100
 EFFECT_MAX = 100
+ITEM_MAX = 100
 PLAYER_LIFE = 3
 PLAYER_BOMB = 3
 
@@ -34,6 +35,12 @@ img_background = pygame.image.load("image/background3.png")
 img_life = pygame.image.load("image/ui/playerLife1_blue.png")
 img_bomb = pygame.image.load("image/power-ups/pill_blue.png")
 
+
+img_item = [
+    pygame.image.load("image/power-ups/bolt_gold.png"),
+    pygame.image.load("image/power-ups/pill_blue.png")
+]
+
 img_ship = [
     pygame.image.load("image/playerShip1_blue.png"),
     pygame.image.load("image/playerShip2_blue.png"),
@@ -42,6 +49,7 @@ img_ship = [
 
 img_player_weapon = [
     pygame.image.load("image/lasers/laserRed16.png"), # player laser 1
+    pygame.image.load("image/lasers/laserBlue16.png")
 
 ]
 
@@ -99,6 +107,7 @@ player_d = 0
 player_invincible = 0
 player_life = PLAYER_LIFE
 player_bomb = PLAYER_BOMB
+player_level = 0
 
 key_space = 0
 key_z = 0
@@ -108,6 +117,7 @@ bullet_f = [False] * BULLET_MAX
 bullet_x = [0] * BULLET_MAX
 bullet_y = [0] * BULLET_MAX
 bullet_a = [0] * BULLET_MAX
+bullet_type = [0] * BULLET_MAX
 
 enemy_no = 0
 enemy_f = [False] * ENEMY_MAX
@@ -116,6 +126,14 @@ enemy_y = [0] * ENEMY_MAX
 enemy_a = [0] * ENEMY_MAX
 enemy_type = [0] * ENEMY_MAX
 enemy_speed = [0] * ENEMY_MAX
+
+item_no = 0
+item_f = [False] * ITEM_MAX
+item_x = [0] * ITEM_MAX
+item_y = [0] * ITEM_MAX
+item_a = [0] * ITEM_MAX
+item_type = [0] * ITEM_MAX
+item_speed = [0] * ITEM_MAX
 
 
 
@@ -147,16 +165,106 @@ def draw_text(scrn, txt, x, y, siz, col):
     scrn.blit(sur, [x, y])
 
 
-def set_bullet(typ):
+def set_bullet(type):
     global bullet_no
-    if typ == 0:
+    if type == 0:
         bullet_f[bullet_no] = True
         bullet_x[bullet_no] = player_x
         bullet_y[bullet_no] = player_y - 30
         bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 0
         bullet_no = (bullet_no + 1 )%BULLET_MAX
 
-    if typ == 10:
+    if type == 1:
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x - 40
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 0
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 0
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x + 40
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 0
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+
+    if type == 2:
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 260
+        bullet_type[bullet_no] = 1
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 1
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 280
+        bullet_type[bullet_no] = 1
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+    if type == 3:
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x - 40
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 0
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 0
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x + 40
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 0
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 260
+        bullet_type[bullet_no] = 1
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 270
+        bullet_type[bullet_no] = 1
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+        bullet_f[bullet_no] = True
+        bullet_x[bullet_no] = player_x
+        bullet_y[bullet_no] = player_y - 30
+        bullet_a[bullet_no] = 280
+        bullet_type[bullet_no] = 1
+        bullet_no = (bullet_no + 1) % BULLET_MAX
+
+
+    if type == 10:
         for i in range(0,370,10):
             bullet_f[bullet_no] = True
             bullet_x[bullet_no] = player_x
@@ -170,14 +278,14 @@ def move_bullet(screen):
         if bullet_f[i]:
             bullet_x[i] = bullet_x[i] + 36 * math.cos(math.radians((bullet_a[i])))
             bullet_y[i] = bullet_y[i] + 36 * math.sin(math.radians((bullet_a[i])))
-            img_rz = pygame.transform.rotozoom(img_player_weapon[0] , -90 - bullet_a[i] , 1.0)
+            img_rz = pygame.transform.rotozoom(img_player_weapon[bullet_type[i]] , -90 - bullet_a[i] , 1.0)
             screen.blit(img_rz, [bullet_x[i] - img_rz.get_width() / 2 , bullet_y[i] - img_rz.get_height() / 2])
             if bullet_y[i] < 0 or bullet_x[i] < 0 or bullet_x[i] > 960:
                 bullet_f[i] = False
 
 
 def move_ship(screen, key):
-    global index, timer,player_x,player_y,player_d,key_space,key_z,player_life,player_invincible,player_bomb
+    global index, timer,player_x,player_y,player_d,key_space,key_z,player_life,player_invincible,player_bomb,player_level
     player_d = 0
     if key[K_UP] == 1:
         player_d = 1
@@ -204,7 +312,15 @@ def move_ship(screen, key):
             player_x = 920
     key_space = (key_space + 1) * key[K_SPACE]
     if key_space % 5 == 1:
-        set_bullet(0)
+        if player_level == 0:
+            set_bullet(0)
+        if player_level == 1:
+            set_bullet(1)
+        if player_level == 2:
+            set_bullet(2)
+        if player_level == 3:
+            set_bullet(3)
+
         se_shot.play()
     key_z = (key_z + 1) * key[K_z]
     if key_z == 1 and player_bomb > 0:
@@ -227,6 +343,7 @@ def move_ship(screen, key):
                 if get_dis(enemy_x[i], enemy_y[i], player_x, player_y) < r * r:
                     set_effect(player_x, player_y)
                     player_life -= 1
+                    player_level = 0
                     if player_life == 0:
                         index = 2
                         timer = 0
@@ -252,6 +369,20 @@ def move_ship(screen, key):
                         se_damage.play()
                     enemy_bullet_f[i] = False
 
+        for i in range(ITEM_MAX):
+            if item_f[i] == True:
+                w = img_item[item_type[i]].get_width()
+                h = img_item[item_type[i]].get_height()
+                r = int((w + h) / 4 + (74 + 96) / 4)
+                if get_dis(item_x[i], item_y[i], player_x, player_y) < r * r:
+                    if item_type[i] == 0:
+                        if player_level != 3:
+                            player_level += 1
+                    elif item_type[i] == 1:
+                        if player_bomb != 3:
+                            player_bomb += 1
+                    item_f[i] = False
+
 
 
 def bring_enemy():
@@ -266,7 +397,7 @@ def bring_enemy():
 
 
 
-def set_enemy(x, y, a, ty, sp , lf):  # 적 기체 설정
+def set_enemy(x, y, a, ty, sp , lf):
     global enemy_no
     while True:
         if not enemy_f[enemy_no]:
@@ -281,7 +412,7 @@ def set_enemy(x, y, a, ty, sp , lf):  # 적 기체 설정
             break
         enemy_no = (enemy_no + 1) % ENEMY_MAX
 
-def set_enemy_bullet(x, y, a, ty, sp):  # 적 기체 설정
+def set_enemy_bullet(x, y, a, ty, sp):
     global enemy_bullet_no
     while True:
         if not enemy_bullet_f[enemy_bullet_no]:
@@ -293,6 +424,19 @@ def set_enemy_bullet(x, y, a, ty, sp):  # 적 기체 설정
             enemy_bullet_speed[enemy_bullet_no] = sp
             break
         enemy_bullet_no = (enemy_bullet_no + 1) % ENEMY_BULLET_MAX
+
+def set_item(x, y, a, ty, sp):
+    global item_no
+    while True:
+        if not item_f[item_no]:
+            item_f[item_no] = True
+            item_x[item_no] = x
+            item_y[item_no] = y
+            item_a[item_no] = a
+            item_type[item_no] = ty
+            item_speed[item_no] = sp
+            break
+        item_no = (item_no + 1) % ITEM_MAX
 
 
 
@@ -308,7 +452,7 @@ def move_enemy(screen):
                 enemy_y[i] = enemy_y[i] + enemy_speed[i] * math.sin(math.radians(enemy_a[i]))
 
                 if enemy_type[i] == 1 and enemy_y[i] > 360:
-                    set_enemy_bullet(enemy_x[i], enemy_y[i], 90, 0, 6)
+                    set_enemy_bullet(enemy_x[i], enemy_y[i], 90, 0, 12)
                     set_enemy_bullet(enemy_x[i], enemy_y[i], 45, 0, 12)
                     enemy_a[i] = -45
                     enemy_speed[i] = 16
@@ -318,7 +462,8 @@ def move_enemy(screen):
                     ang = enemy_count[i] * 10
                     if enemy_y[i] > 240 and enemy_a[i] == 90:
                         enemy_a[i] = random.choice([50, 70, 110, 130])
-                        set_enemy_bullet(enemy_x[i], enemy_y[i], 90, 0, 6)
+                        set_enemy_bullet(enemy_x[i], enemy_y[i], random.randint(0,360), 0, 12)
+
 
                 if enemy_x[i] < LINE_LEFT or LINE_RIGHT < enemy_x[i] or enemy_y[i] < LINE_TOP or LINE_BOTTOM < enemy_y[i]:
                     enemy_f[i] = False
@@ -362,8 +507,14 @@ def move_enemy(screen):
                         new_record = True
                     if enemy_life[i] == 0:
                         enemy_f[i] = False
+                        if random.randint(0, 100) <= 20:
+                            set_item(enemy_x[i],enemy_y[i],random.randint(50,120),0,10) # random.randint(50,120)
+                        if random.randint(0, 100) <= 10:
+                            set_item(enemy_x[i],enemy_y[i],random.randint(50,120),1,10) # random.randint(50,120)
 
-                        if enemy_type[i] == ENEMY_BOSS and index == 1:  # 보스를 격추시키면 클리어
+                        # drop item randomly
+
+                        if enemy_type[i] == ENEMY_BOSS and index == 1:
                             index = 3
                             timer = 0
                             for j in range(10):
@@ -385,6 +536,19 @@ def move_enemy_bullet(screen):
                 enemy_bullet_f[i] = False
             img_rz = pygame.transform.rotozoom(img_enemy_weapon[png], ang, 1.0)
             screen.blit(img_rz, [enemy_bullet_x[i] - img_rz.get_width() / 2, enemy_bullet_y[i] - img_rz.get_height() / 2])
+
+def move_item(screen):
+    for i in range(ITEM_MAX):
+        if item_f[i] == True:
+            ang = 0
+            png = item_type[i]
+            item_x[i] = item_x[i] + item_speed[i] * math.cos(math.radians(item_a[i]))
+            item_y[i] = item_y[i] + item_speed[i] * math.sin(math.radians(item_a[i]))
+            if item_x[i] < LINE_LEFT or LINE_RIGHT < item_x[i] or item_y[i] < LINE_TOP or LINE_BOTTOM < item_y[i]:
+                item_f[i] = False
+            img_rz = pygame.transform.rotozoom(img_item[png], ang, 1.0)
+            screen.blit(img_rz, [item_x[i] - img_rz.get_width() / 2, item_y[i] - img_rz.get_height() / 2])
+
 
 
 def set_effect(x,y):
@@ -410,6 +574,10 @@ def draw_ui(screen):
 
     for i in range(player_bomb):
         screen.blit(img_bomb,[750 + 60*(i+1),940])
+
+    for i in range(player_level):
+        screen.blit(img_item[0],[65*(i+1),890 ])
+
 
 
 
@@ -466,11 +634,13 @@ def main():
             move_enemy_bullet(screen)
             bring_enemy()
             move_enemy(screen)
+            move_item(screen)
 
         if index == 2:
             move_bullet(screen)
             move_enemy_bullet(screen)
             move_enemy(screen)
+            move_item(screen)
             if timer == 1:
                 pygame.mixer.music.stop()
             if timer <= 90:
@@ -493,6 +663,7 @@ def main():
         if index == 3:
             move_ship(screen, key)
             move_bullet(screen)
+            move_item(screen)
             if timer == 1:
                 pygame.mixer.music.stop()
             if timer < 30 and timer % 2 == 0:
