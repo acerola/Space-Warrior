@@ -101,6 +101,7 @@ score = 0
 highscore = 9999
 new_record = False
 background_ypos = 0
+boss_flag = 0
 
 player_x = 0
 player_y = 0
@@ -384,14 +385,41 @@ def move_ship(screen, key):
                             player_bomb += 1
                     item_f[i] = False
 
-
-
-def bring_enemy():
+def stage1():
     sec = timer / 30
-    if 0 < sec and sec < 15 and timer % 60 == 0:
-        set_enemy(random.randint(100, 860), LINE_TOP, random.randint(60, 120), ENEMY_ADS + 1, 6, 3)  # 적 3
-    if timer == 30 * 20:
+    if 5 < sec and sec < 15:
+        if timer % 15 == 0:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS, 8, 1)
+    if 20 < sec and sec < 30:
+        if timer % 15 == 0:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS + 1, 12, 1)
+
+
+def stage2():
+    global boss_flag
+    sec = timer / 30
+    if 35 < sec and sec < 45:
+        if timer % 15 == 0:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS+2, 8, 3)
+    if 47 < sec and sec < 57:
+        if timer % 15 == 0:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS + 3, 12, 3)
+    if sec > 57 and boss_flag == 0:
         set_enemy(480, -210, 90, ENEMY_BOSS, 4, 200)
+        boss_flag = 1
+
+
+
+def bring_enemy(screen):
+    sec = timer / 30
+    if 2 < sec < 5 :
+        draw_text(screen, "STAGE 1", 480, 300, 80, SILVER)
+    if 2 < sec and sec < 30 :
+        stage1()
+    if 33 < sec < 36:
+        draw_text(screen, "STAGE 2", 480, 300, 80, SILVER)
+    if 33 < sec and sec < 75:
+        stage2()
 
 
 
@@ -661,7 +689,7 @@ def main():
             move_ship(screen, key)
             move_bullet(screen)
             move_enemy_bullet(screen)
-            bring_enemy()
+            bring_enemy(screen)
             move_enemy(screen)
             move_item(screen)
 
