@@ -54,7 +54,8 @@ img_player_weapon = [
 ]
 
 img_enemy_weapon = [
-    pygame.image.load("image/lasers/laserBlue11.png") # enemy laser 1
+    pygame.image.load("image/lasers/laserBlue11.png"), # enemy laser 1
+    pygame.image.load("image/lasers/laserBlue01.png")
 ]
 
 img_enemy = [
@@ -388,10 +389,7 @@ def move_ship(screen, key):
 def bring_enemy():
     sec = timer / 30
     if 0 < sec and sec < 15 and timer % 60 == 0:
-        set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS, 8, 1)  # 적 1
-        set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS + 1, 12, 1)  # 적 2
-        set_enemy(random.randint(100, 860), LINE_TOP, random.randint(60, 120), ENEMY_ADS + 2, 6, 3)  # 적 3
-        set_enemy(random.randint(100, 860), LINE_TOP, 90, ENEMY_ADS + 3, 12, 2)  # 적 4
+        set_enemy(random.randint(100, 860), LINE_TOP, random.randint(60, 120), ENEMY_ADS + 1, 6, 3)  # 적 3
     if timer == 30 * 20:
         set_enemy(480, -210, 90, ENEMY_BOSS, 4, 200)
 
@@ -457,12 +455,40 @@ def move_enemy(screen):
                     enemy_a[i] = -45
                     enemy_speed[i] = 16
 
+                if enemy_type[i] == 2 :
+                        if enemy_count[i] < 20:
+                            enemy_x[i] -= 10
+                            enemy_count[i] += 1
+                        if enemy_count[i] >= 20:
+                            enemy_x[i] += 10
+                            enemy_count[i] += 1
+                        if enemy_count[i] == 40:
+                            set_enemy_bullet(enemy_x[i], enemy_y[i], 45, 1, 12)
+                            set_enemy_bullet(enemy_x[i], enemy_y[i], 90+45, 1, 12)
+                            set_enemy_bullet(enemy_x[i], enemy_y[i], 180+45, 1, 12)
+                            set_enemy_bullet(enemy_x[i], enemy_y[i], 360-45, 1, 12)
+                            enemy_count[i] = 0
+
+
+
+
+                if enemy_type[i] == 3:
+                    enemy_y[i] = enemy_y[i] + 10
+                    enemy_count[i] += 1
+                    if enemy_count[i] == 15:
+                        enemy_a[i] = random.randint(0,360)
+                        enemy_count[i] %= 15
+
+
+
                 if enemy_type[i] == 4:
                     enemy_count[i] = enemy_count[i] + 1
                     ang = enemy_count[i] * 10
                     if enemy_y[i] > 240 and enemy_a[i] == 90:
                         enemy_a[i] = random.choice([50, 70, 110, 130])
-                        set_enemy_bullet(enemy_x[i], enemy_y[i], random.randint(0,360), 0, 12)
+                        set_enemy_bullet(enemy_x[i], enemy_y[i], 45, 1, 16)
+                        set_enemy_bullet(enemy_x[i], enemy_y[i], 90, 1, 16)
+                        set_enemy_bullet(enemy_x[i], enemy_y[i], 135, 1, 16)
 
 
                 if enemy_x[i] < LINE_LEFT or LINE_RIGHT < enemy_x[i] or enemy_y[i] < LINE_TOP or LINE_BOTTOM < enemy_y[i]:
@@ -584,7 +610,7 @@ def draw_ui(screen):
 
 
 def main():
-    global timer , background_ypos , index, score,new_record, player_x , player_y , player_d , player_bomb,player_invincible
+    global timer , background_ypos , index, score,new_record, player_x , player_y , player_d , player_bomb,player_invincible,player_life,player_life
     global se_barrage,se_damage,se_explosion,se_shot
     pygame.init()
     pygame.display.set_caption("Space Warrior")
@@ -620,6 +646,9 @@ def main():
                 player_y = 960
                 player_d = 0
                 player_invincible = 0
+                player_life = PLAYER_LIFE
+                player_bomb = PLAYER_BOMB
+                player_level = 0
                 for i in range(ENEMY_MAX):
                     enemy_f[i] = False
                 for i in range(BULLET_MAX):
