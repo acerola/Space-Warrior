@@ -3,33 +3,7 @@ import sys
 import math
 import random
 from pygame.locals import *
-
-
-SCROLLSPEED = 10
-BULLET_MAX = 100
-ENEMY_MAX = 100
-ENEMY_BULLET_MAX = 100
-EFFECT_MAX = 100
-ITEM_MAX = 100
-PLAYER_LIFE = 3
-PLAYER_BOMB = 3
-
-SILVER = (192,208,224)
-RED = (255,0,0)
-CYAN = (0,224,255)
-
-
-ENEMY_ADS = 1
-ENEMY_BOSS = 5
-
-ENEMY_BOSS_BULLET = 0
-
-LINE_TOP = -80
-LINE_BOTTOM = 1124
-LINE_LEFT = -80
-LINE_RIGHT = 1124
-
-
+from Macro import *
 
 img_background = pygame.image.load("image/background3.png")
 img_life = pygame.image.load("image/ui/playerLife1_blue.png")
@@ -92,9 +66,6 @@ se_damage = None
 se_explosion = None
 se_shot = None
 
-
-
-
 index = 0
 timer = 0
 score = 0
@@ -137,8 +108,6 @@ item_a = [0] * ITEM_MAX
 item_type = [0] * ITEM_MAX
 item_speed = [0] * ITEM_MAX
 
-
-
 enemy_bullet_no = 0
 enemy_bullet_f = [False] * ENEMY_MAX
 enemy_bullet_x = [0] * ENEMY_MAX
@@ -166,6 +135,45 @@ def draw_text(scrn, txt, x, y, siz, col):
     y = y - sur.get_height() / 2
     scrn.blit(sur, [x, y])
 
+#
+# stage system
+#
+def stage1():
+    sec = timer / 30
+    if 5 < sec and sec < 15:
+        if timer % 15 == 0:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS, 8, 1)
+    if 20 < sec and sec < 30:
+        if timer % 15 == 0:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS + 1, 12, 1)
+
+
+def stage2():
+    global boss_flag
+    sec = timer / 30
+    if 35 < sec and sec < 45:
+        if timer % 15 == 0:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS+2, 8, 3)
+    if 47 < sec and sec < 57:
+        if timer % 15 == 0:
+            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS + 3, 12, 3)
+    if sec > 57 and boss_flag == 0:
+        set_enemy(480, -210, 90, ENEMY_BOSS, 4, 200)
+        boss_flag = 1
+
+
+
+def bring_enemy(screen):
+    sec = timer / 30
+    if 2 < sec < 5 :
+        draw_text(screen, "STAGE 1", 480, 300, 80, SILVER)
+    if 2 < sec and sec < 30 :
+        stage1()
+    if 33 < sec < 36:
+        draw_text(screen, "STAGE 2", 480, 300, 80, SILVER)
+    if 33 < sec and sec < 75:
+        stage2()
+###
 
 def set_bullet(type):
     global bullet_no
@@ -385,41 +393,7 @@ def move_ship(screen, key):
                             player_bomb += 1
                     item_f[i] = False
 
-def stage1():
-    sec = timer / 30
-    if 5 < sec and sec < 15:
-        if timer % 15 == 0:
-            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS, 8, 1)
-    if 20 < sec and sec < 30:
-        if timer % 15 == 0:
-            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS + 1, 12, 1)
 
-
-def stage2():
-    global boss_flag
-    sec = timer / 30
-    if 35 < sec and sec < 45:
-        if timer % 15 == 0:
-            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS+2, 8, 3)
-    if 47 < sec and sec < 57:
-        if timer % 15 == 0:
-            set_enemy(random.randint(20, 940), LINE_TOP, 90, ENEMY_ADS + 3, 12, 3)
-    if sec > 57 and boss_flag == 0:
-        set_enemy(480, -210, 90, ENEMY_BOSS, 4, 200)
-        boss_flag = 1
-
-
-
-def bring_enemy(screen):
-    sec = timer / 30
-    if 2 < sec < 5 :
-        draw_text(screen, "STAGE 1", 480, 300, 80, SILVER)
-    if 2 < sec and sec < 30 :
-        stage1()
-    if 33 < sec < 36:
-        draw_text(screen, "STAGE 2", 480, 300, 80, SILVER)
-    if 33 < sec and sec < 75:
-        stage2()
 
 
 
