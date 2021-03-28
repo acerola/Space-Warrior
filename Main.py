@@ -2,8 +2,10 @@ import pygame
 import sys
 import math
 import random
+import os
 from pygame.locals import *
 from Macro import *
+
 
 img_background = pygame.image.load("image/background3.png")
 img_life = pygame.image.load("image/ui/playerLife1_blue.png")
@@ -174,7 +176,6 @@ def bring_enemy(screen):
     if 33 < sec and sec < 75:
         stage2()
 ###
-
 def set_bullet(type):
     global bullet_no
     if type == 0:
@@ -607,6 +608,25 @@ def draw_ui(screen):
         screen.blit(img_item[0],[65*(i+1),890 ])
 
 
+def write_score(score):
+    f = open("score.txt",'w')
+    f.write(str(score))
+    f.close()
+
+def read_score():
+    global highscore
+    file_list = os.listdir()
+
+    if "score.txt" not in file_list :
+        f = open("score.txt",'w')
+        f.write(str(highscore))
+        f.close()
+    else:
+        f = open("score.txt",'r')
+        highscore = int(f.read())
+        f.close()
+
+
 
 
 
@@ -637,6 +657,7 @@ def main():
 
         key = pygame.key.get_pressed()
         if index == 0:
+            read_score()
             screen.blit(img_title[0],[0,-100])
             draw_text(screen , "Press Space to start",512,512,50,SILVER)
             if key[K_SPACE] == 1:
@@ -686,6 +707,7 @@ def main():
                 draw_text(screen, "GAME OVER", 480 , 300, 80, RED)
                 if new_record == True:
                     draw_text(screen,"NEW RECORD" + str(highscore),480,400,60,CYAN)
+                    write_score(highscore)
 
             if timer == 400:
                 index = 0
@@ -695,6 +717,7 @@ def main():
             move_ship(screen, key)
             move_bullet(screen)
             move_item(screen)
+            write_score(score)
             if timer == 1:
                 pygame.mixer.music.stop()
             if timer < 30 and timer % 2 == 0:
