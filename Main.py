@@ -361,7 +361,7 @@ def move_ship(screen, key):
                     if player_invincible == 0:
                         player_invincible = 60
                         se_damage.play()
-                    if enemy_type != ENEMY_BOSS:
+                    if enemy_type[i] != ENEMY_BOSS:
                         enemy_f[i] = False
 
         for i in range(ENEMY_BULLET_MAX):
@@ -446,7 +446,7 @@ def move_enemy(screen):
     global index , timer , score, highscore , new_record
     for i in range(ENEMY_MAX):
         if enemy_f[i] == True:
-            ang = -90 - enemy_a[i]
+            ang = 0 if enemy_a[i] == 90 else -180 + enemy_a[i]
             png = enemy_type[i]
             if enemy_type[i] != ENEMY_BOSS:
                 enemy_x[i] = enemy_x[i] + enemy_speed[i] * math.cos(math.radians(enemy_a[i]))
@@ -455,7 +455,7 @@ def move_enemy(screen):
                 if enemy_type[i] == 1 and enemy_y[i] > 360:
                     set_enemy_bullet(enemy_x[i], enemy_y[i], 90, 0, 12)
                     set_enemy_bullet(enemy_x[i], enemy_y[i], 45, 0, 12)
-                    enemy_a[i] = -45
+                    enemy_a[i] = - 45
                     enemy_speed[i] = 16
 
                 if enemy_type[i] == 2 :
@@ -526,7 +526,7 @@ def move_enemy(screen):
                 if bullet_f[n] == True and get_dis(enemy_x[i],enemy_y[i],bullet_x[n],bullet_y[n]) < r*r:
                     bullet_f[n] = False
                     set_effect(enemy_x[i] + random.randint(-er, er), enemy_y[i] + random.randint(-er, er))
-                    if enemy_type[i] == ENEMY_BOSS:  # 보스 기체 깜빡임 처리
+                    if enemy_type[i] == ENEMY_BOSS:
                         png = enemy_type[i] + 1
                     se_damage.play()
                     enemy_life[i] -= 1
@@ -609,20 +609,20 @@ def draw_ui(screen):
 
 
 def write_score(score):
-    f = open("score.txt",'w')
+    f = open("score.txt", 'w')
     f.write(str(score))
     f.close()
 
 def read_score():
     global highscore
-    file_list = os.listdir()
+    file_list = os.listdir()  # 디렉터리 정보 획득
 
-    if "score.txt" not in file_list :
+    if "score.txt" not in file_list :   # 만약 스코어 파일이 없다면 새로만듬
         f = open("score.txt",'w')
         f.write(str(highscore))
         f.close()
     else:
-        f = open("score.txt",'r')
+        f = open("score.txt",'r')    # 이미 존재한다면 해당 파일에서 스코어읽어오기
         highscore = int(f.read())
         f.close()
 
@@ -717,7 +717,8 @@ def main():
             move_ship(screen, key)
             move_bullet(screen)
             move_item(screen)
-            write_score(score)
+            if new_record == True:
+                write_score(highscore)
             if timer == 1:
                 pygame.mixer.music.stop()
             if timer < 30 and timer % 2 == 0:
